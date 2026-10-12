@@ -1,0 +1,147 @@
+{
+  "info": {
+    "name": "Factory Traffic Management System API",
+    "_postman_id": "8f3b25cb-e80f-4886-90b5-e8d752f9547d",
+    "description": "Postman API Collection for Factory Traffic Management System",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Junctions",
+      "item": [
+        {
+          "name": "List Junctions",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/junctions", "host": ["{{baseUrl}}"], "path": ["api", "junctions"] }
+          }
+        },
+        {
+          "name": "Create Junction",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"junction_id\": \"B\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/junctions", "host": ["{{baseUrl}}"], "path": ["api", "junctions"] }
+          }
+        },
+        {
+          "name": "Get Junction Status",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/junctions/A/status", "host": ["{{baseUrl}}"], "path": ["api", "junctions", "A", "status"] }
+          }
+        },
+        {
+          "name": "Manual Green Request",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"command\": \"MANUAL_GREEN_REQUEST\",\n  \"direction\": \"EAST\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/junctions/A/commands", "host": ["{{baseUrl}}"], "path": ["api", "junctions", "A", "commands"] }
+          }
+        },
+        {
+          "name": "Return to Automatic",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"command\": \"RETURN_TO_AUTOMATIC\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/junctions/A/commands", "host": ["{{baseUrl}}"], "path": ["api", "junctions", "A", "commands"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Sensor Events",
+      "item": [
+        {
+          "name": "Vehicle Arrived",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"event_id\": \"evt-10001\",\n  \"junction_id\": \"A\",\n  \"direction\": \"NORTH\",\n  \"event_type\": \"VEHICLE_ARRIVED\",\n  \"vehicle_id\": \"VH-501\",\n  \"vehicle_type\": \"FORKLIFT\",\n  \"sequence_no\": 1501,\n  \"timestamp\": \"2026-10-05T10:15:20Z\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/sensor-events", "host": ["{{baseUrl}}"], "path": ["api", "sensor-events"] }
+          }
+        },
+        {
+          "name": "Vehicle Cleared",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"event_id\": \"evt-10002\",\n  \"junction_id\": \"A\",\n  \"direction\": \"NORTH\",\n  \"event_type\": \"VEHICLE_CLEARED\",\n  \"vehicle_id\": \"VH-501\",\n  \"sequence_no\": 1502,\n  \"timestamp\": \"2026-10-05T10:16:10Z\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/sensor-events", "host": ["{{baseUrl}}"], "path": ["api", "sensor-events"] }
+          }
+        },
+        {
+          "name": "Emergency Vehicle Arrived",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"event_id\": \"evt-emg-901\",\n  \"junction_id\": \"A\",\n  \"direction\": \"EAST\",\n  \"event_type\": \"VEHICLE_ARRIVED\",\n  \"vehicle_id\": \"AMB-01\",\n  \"vehicle_type\": \"EMERGENCY\",\n  \"sequence_no\": 1600,\n  \"timestamp\": \"2026-10-05T10:20:00Z\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/sensor-events", "host": ["{{baseUrl}}"], "path": ["api", "sensor-events"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Controller Events",
+      "item": [
+        {
+          "name": "Controller ACK",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"command_id\": \"cmd-8001\",\n  \"junction_id\": \"A\",\n  \"status\": \"ACK\",\n  \"actual_state\": \"GREEN\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/controller-events", "host": ["{{baseUrl}}"], "path": ["api", "controller-events"] }
+          }
+        },
+        {
+          "name": "Controller Offline",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"junction_id\": \"A\",\n  \"device_type\": \"SIGNAL_CONTROLLER\",\n  \"status\": \"OFFLINE\"\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/controller-events", "host": ["{{baseUrl}}"], "path": ["api", "controller-events"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "History",
+      "item": [
+        {
+          "name": "Get Junction History",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/junctions/A/history?limit=50", "host": ["{{baseUrl}}"], "path": ["api", "junctions", "A", "history"], "query": [{"key": "limit", "value": "50"}] }
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8000"
+    }
+  ]
+}

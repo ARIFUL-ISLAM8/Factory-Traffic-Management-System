@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Factory Traffic Management System | Smart Tech</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header class="top-nav">
+        <div class="logo-area">
+            <div class="status-beacon live"></div>
+            <h1>FACTORY TRAFFIC CONTROLLER</h1>
+            <span class="badge">IoT Automations V2</span>
+        </div>
+        <div class="nav-metrics">
+            <div class="metric-pill">
+                <span class="label">Junction:</span>
+                <select id="junctionSelector" onchange="switchJunction()">
+                    <option value="A" selected>Junction A</option>
+                    <option value="B">Junction B</option>
+                </select>
+            </div>
+            <div class="metric-pill">
+                <span class="label">System Mode:</span>
+                <span id="headerMode" class="value badge-mode">AUTOMATIC</span>
+            </div>
+            <div class="metric-pill">
+                <span class="label">Controller:</span>
+                <span id="headerControllerStatus" class="value badge-online">ONLINE</span>
+            </div>
+            <div class="metric-pill">
+                <span class="label">Sim Speed:</span>
+                <select id="speedSelector" onchange="changeSimSpeed()">
+                    <option value="1.0">1x (Real-time 30s/5s)</option>
+                    <option value="5.0" selected>5x (Demo speed)</option>
+                    <option value="10.0">10x (Rapid test)</option>
+                </select>
+            </div>
+        </div>
+    </header>
+
+    <main class="dashboard-grid">
+        <!-- TOP ALERT BANNER (If failure or emergency) -->
+        <div id="alertBanner" class="alert-banner hidden">
+            <span class="alert-icon">⚠️</span>
+            <span id="alertMessage" class="alert-text">Alert message goes here</span>
+        </div>
+
+        <!-- LEFT COLUMN: INTERSECTION VISUALIZER -->
+        <section class="card intersection-card">
+            <div class="card-header">
+                <h2>Live Intersection Visualizer</h2>
+                <span id="phaseDisplay" class="phase-tag">PHASE: NORTH_SOUTH</span>
+            </div>
+            
+            <div class="visualizer-container">
+                <!-- NORTH APPROACH -->
+                <div class="approach north-approach">
+                    <div class="queue-badge" title="Queue Count">
+                        🚗 <span id="queueNorth">0</span>
+                    </div>
+                    <div class="signal-box">
+                        <div id="signalNorthRed" class="light red"></div>
+                        <div id="signalNorthYellow" class="light yellow"></div>
+                        <div id="signalNorthGreen" class="light green active"></div>
+                    </div>
+                    <span class="direction-label">NORTH</span>
+                </div>
+
+                <div class="middle-row">
+                    <!-- WEST APPROACH -->
+                    <div class="approach west-approach">
+                        <span class="direction-label">WEST</span>
+                        <div class="signal-box horizontal">
+                            <div id="signalWestRed" class="light red active"></div>
+                            <div id="signalWestYellow" class="light yellow"></div>
+                            <div id="signalWestGreen" class="light green"></div>
+                        </div>
+                        <div class="queue-badge" title="Queue Count">
+                            🚗 <span id="queueWest">0</span>
+                        </div>
+                    </div>
+
+                    <!-- JUNCTION CENTER -->
+                    <div class="junction-hub">
+                        <div class="hub-center">
+                            <span id="hubLabel">JUNCTION A</span>
+                            <small id="hubSubLabel">ACTIVE</small>
+                        </div>
+                    </div>
+
+                    <!-- EAST APPROACH -->
+                    <div class="approach east-approach">
+                        <div class="queue-badge" title="Queue Count">
+                            🚗 <span id="queueEast">0</span>
+                        </div>
+                        <div class="signal-box horizontal">
+                            <div id="signalEastGreen" class="light green"></div>
+                            <div id="signalEastYellow" class="light yellow"></div>
+                            <div id="signalEastRed" class="light red active"></div>
+                        </div>
+                        <span class="direction-label">EAST</span>
+                    </div>
+                </div>
+
+                <!-- SOUTH APPROACH -->
+                <div class="approach south-approach">
+                    <span class="direction-label">SOUTH</span>
+                    <div class="signal-box">
+                        <div id="signalSouthGreen" class="light green active"></div>
+                        <div id="signalSouthYellow" class="light yellow"></div>
+                        <div id="signalSouthRed" class="light red"></div>
+                    </div>
+                    <div class="queue-badge" title="Queue Count">
+                        🚗 <span id="queueSouth">0</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- HARDWARE CONFIRMATION STATS -->
+            <div class="telemetry-bar">
+                <div class="telemetry-item">
+                    <span class="telemetry-label">Desired State:</span>
+                    <code id="desiredSignalsText">N:GREEN S:GREEN E:RED W:RED</code>
+                </div>
+                <div class="telemetry-item">
+                    <span class="telemetry-label">Controller Actual State:</span>
+                    <code id="actualSignalsText">N:GREEN S:GREEN E:RED W:RED</code>
+                </div>
+                <div class="telemetry-item">
+                    <span class="telemetry-label">Pending Command:</span>
+                    <code id="pendingCmdText">None</code>
+                </div>
+            </div>
+        </section>
+
+        <!-- RIGHT COLUMN: CONTROL & SIMULATION -->
+        <div class="control-column">
+            <!-- MANUAL OVERRIDE CARD -->
+            <section class="card">
+                <div class="card-header">
+                    <h2>Manual Traffic Control</h2>
+                    <span class="badge">Admin Override</span>
+                </div>
+                <p class="description">Command a safe, deterministic signal transition without violating traffic-safety invariants.</p>
+                <div class="button-group">
+                    <button class="btn btn-primary" onclick="requestManualGreen('NORTH')">Force North Green</button>
+                    <button class="btn btn-primary" onclick="requestManualGreen('SOUTH')">Force South Green</button>
+                    <button class="btn btn-primary" onclick="requestManualGreen('EAST')">Force East Green</button>
+                    <button class="btn btn-primary" onclick="requestManualGreen('WEST')">Force West Green</button>
+                </div>
+                <div class="button-group" style="margin-top: 10px;">
+                    <button class="btn btn-success full-width" onclick="returnToAutomatic()">Return to Automatic Control</button>
+                </div>
+            </section>
+
+            <!-- SIMULATION TOOLS -->
+            <section class="card">
+                <div class="card-header">
+                    <h2>Traffic & IoT Hardware Simulator</h2>
+                    <span class="badge">Evaluator Tool</span>
+                </div>
+                
+                <div class="sim-grid">
+                    <div class="sim-panel">
+                        <h3>🚗 Vehicle Detection</h3>
+                        <div class="form-row">
+                            <label>Direction:</label>
+                            <select id="simDirection">
+                                <option value="NORTH">NORTH</option>
+                                <option value="SOUTH">SOUTH</option>
+                                <option value="EAST">EAST</option>
+                                <option value="WEST">WEST</option>
+                            </select>
+                        </div>
+                        <div class="form-row">
+                            <label>Vehicle Type:</label>
+                            <select id="simVehicleType">
+                                <option value="EMPLOYEE_VEHICLE">Employee Vehicle (Low)</option>
+                                <option value="FORKLIFT">Forklift (Medium)</option>
+                                <option value="TRUCK">Truck (High)</option>
+                                <option value="EMERGENCY">Emergency Vehicle (Preemptive)</option>
+                            </select>
+                        </div>
+                        <div class="form-row">
+                            <label>Vehicle ID:</label>
+                            <input type="text" id="simVehicleId" value="VH-501" placeholder="e.g. VH-501">
+                        </div>
+                        <div class="action-buttons">
+                            <button class="btn btn-accent" onclick="simulateVehicleArrival()">Simulate Arrival</button>
+                            <button class="btn btn-outline" onclick="simulateVehicleClearance()">Simulate Clearance</button>
+                        </div>
+                    </div>
+
+                    <div class="sim-panel">
+                        <h3>📡 Hardware Controller</h3>
+                        <p class="small-text">Simulate hardware controller disconnects and failure recovery.</p>
+                        <div class="action-buttons vertical">
+                            <button class="btn btn-danger" onclick="toggleControllerStatus('OFFLINE')">Simulate Controller OFFLINE</button>
+                            <button class="btn btn-success" onclick="toggleControllerStatus('ONLINE')">Simulate Controller ONLINE</button>
+                            <button class="btn btn-outline" onclick="simulateManualAck()">Send Manual Controller ACK</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- AUDIT & ACTIVITY LOG -->
+            <section class="card audit-card">
+                <div class="card-header">
+                    <h2>Audit History & State Transitions</h2>
+                    <button class="btn-sm" onclick="fetchAuditLogs()">Refresh Log</button>
+                </div>
+                <div class="audit-log-container" id="auditLogList">
+                    <div class="audit-item placeholder">Awaiting activity...</div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <p>Factory Traffic Management System - Industrial IoT & Factory Automation Platform</p>
+        <p><a href="/docs" target="_blank">OpenAPI Swagger Docs</a> | SQLite Persistence | Pure Domain Engine</p>
+    </footer>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>
